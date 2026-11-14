@@ -1,14 +1,5 @@
 #!/usr/bin/env python3
-"""Quantile forecaster for the polymarket attribution family.
-
-Reads every <id>.in case file in the input directory and writes <id>.out with
-five quantiles per market and per minute of the horizon.
-
-Model: persistence around the checkpoint price, with a mild gravity toward the
-market's resolution (down for prices below 0.5, up above), and a spread that
-adapts to the realised volatility of the case's own minute prices, floored and
-capped so it can neither collapse nor run away.
-"""
+"""Quantile forecaster for the polymarket attribution family."""
 import json
 import math
 import os
@@ -77,7 +68,8 @@ def main():
         for market in case.get("markets") or []:
             rows = forecast_market(market.get("prices") or [], horizon)
             forecasts.append({"id": market.get("id"), "q": rows})
-        with open(os.path.join(out_dir, case_id + ".out"), "w", encoding="utf-8") as fh:
+        path = os.path.join(out_dir, case_id + ".out")
+        with open(path, "w", encoding="utf-8") as fh:
             json.dump({"forecasts": forecasts}, fh, separators=(",", ":"))
     sys.stdout.write("wrote %d case(s)\n" % len(names))
 
